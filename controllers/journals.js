@@ -2,6 +2,8 @@ const journals = require('../models/journals_schema');
 const users = require('../models/users_schema');
 const journalsRouter = require('express').Router();
 
+let jEdit = new journals();
+
 const writeJournal = (req, res) => {
     const query = users.findOne({ email: req.body.email });
     query.exec(async (err, data) => {
@@ -77,6 +79,60 @@ const getOneJournal = (req, res) => {
     });
 }
 
+const editOneJournal = (req, res) => {
+    const query = journals.findOne({ id: req.body.id });
+    query.exec(async (err, data) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        if (data) {
+            jEdit = await journals.updateMany(
+                { id: req.body.id },
+                { $set: {
+                    title: req.body.title,
+                    content: req.body.content
+                }
+            })
+            
+            if (jEdit) {
+                return res.status(200).send({
+                    message: 'Journal ID edited!'
+                });
+            }
+
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        return res.status(404).send({ message: 'Journal doesn\'t exist' });
+    });
+}
+
+const deleteOneJournal = (req, res) => {
+    const query = journals.findOne({ id: req.query.id });
+    query.exec(async (err, data) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        if (data) {
+            jEdit = await journals.deleteOne({ 
+                id: req.query.id 
+            });            
+
+            if (jEdit) {
+                return res.status(200).send({
+                    message: 'Journal ID deleted!'
+                });
+            }
+
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        return res.status(404).send({ message: 'Journal doesn\'t exist' });
+    });
+}
+
 journalsRouter
 	.post('/writejournal', async(req, res) => {
 		return writeJournal(req, res);
@@ -90,6 +146,16 @@ journalsRouter
 journalsRouter
     .get('/journal/', async(req, res) => {
         return getOneJournal(req, res);
+    })
+
+journalsRouter
+    .post('/journal/', async(req, res) => {
+        return editOneJournal(req, res);
+    })
+
+journalsRouter
+    .delete('/journal/', async(req, res) => {
+        return deleteOneJournal(req, res);
     })
 
 module.exports = journalsRouter;
