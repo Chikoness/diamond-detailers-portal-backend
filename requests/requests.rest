@@ -1,0 +1,32 @@
+### CREATE ACCOUNT
+POST http://localhost:3301/api/accounts/
+Content-Type: application/json
+
+{
+    "op": "create",
+    "email": "dragapult@sharklasers.com",
+    "password": "Dr33py"
+}
+
+### LOGIN ACCOUNT
+POST http://localhost:3301/api/accounts/
+Content-Type: application/json
+
+{
+    "op": "login",
+    "email": "dragapult@sharklasers.com",
+    "password": "Dr33py"
+}
+
+### RESET PASSWORD
+POST http://localhost:3301/api/accounts/
+Content-Type: application/json
+
+{
+    "op": "resetPassword",
+    "email": "oneseedfruit@gmail.com"
+}
+
+
+### PASSWORD RESET PAGE, NOT FROM FRONT-END!
+GET http://localhost:3301/api/accounts/vUlU6me7sJ19H6_pOmd9q
