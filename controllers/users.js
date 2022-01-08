@@ -69,6 +69,7 @@ const createUser = (req, res) => {
         const u = new users({
             fName: req.body.fName,
             lName: req.body.lName,
+            gender: req.body.gender,
             type: req.body.type,
             phoneNo: req.body.phoneNo,
             dob: req.body.dob,
@@ -122,6 +123,7 @@ const getUserDetails = (req, res) => {
             return res.status(200).send({
                 fName: user.fName,
                 lName: user.lName,
+                gender: req.body.gender,
                 type: user.type,
                 phoneNo: user.phoneNo,
                 dob: user.dob,

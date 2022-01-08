@@ -1,22 +1,38 @@
 const mongoose = require('mongoose');
 
 const TravelPlannersSchema = mongoose.Schema({
-    title: {
+    id: {
         type: String,
         required: true
     },
-    content: {
+    destination: {
         type: String,
         required: true
     },
-    author: {
+    from: {
         type: String,
         required: true
     },
-    date: {
+    until: {
         type: String,
         required: true
     },
+    typeOfTravel: {
+        type: String,
+        // required: true
+    },
+    plans: {
+        type: Array,
+        // required: true
+    },
+    reminderNote: {
+        type: Array,
+        // required: true
+    },
+    email: {
+        type: String,
+        required: true
+    }
 });
 
-module.exports = mongoose.model('travel-planners', TravelPlannersSchema)
+module.exports = mongoose.model('travelPlanners', TravelPlannersSchema)
