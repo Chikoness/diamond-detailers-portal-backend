@@ -69,6 +69,7 @@ const createUser = (req, res) => {
         const u = new users({
             fName: req.body.fName,
             lName: req.body.lName,
+            type: req.body.type,
             phoneNo: req.body.phoneNo,
             dob: req.body.dob,
             address: req.body.address,
@@ -96,11 +97,42 @@ const loginUser = (req, res) => {
             const password = await bcrypt.compare(req.body.password, user.password);
             if (password) {
                 const token = jwt.sign({ email: user.email }, config.SECRET);
-                return res.status(200).send({ message: 'Successfully logged in!', token, email: user.email });
+                return res.status(200).send({ 
+                    message: 'Successfully logged in!', 
+                    token, 
+                    name: user.fName,
+                    email: user.email,
+                    type: user.type   
+                });
             }
             return res.status(401).send({ message: 'Password is invalid!' });
         }
-        return res.status(400).send({ message: 'user does not exist!' });
+        return res.status(400).send({ message: 'User does not exist!' });
+    });
+}
+
+const getUserDetails = (req, res) => {
+    const query = users.findOne({ email: req.query.email });
+    query.exec(async (err, user) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        if (user) {
+            return res.status(200).send({
+                fName: user.fName,
+                lName: user.lName,
+                type: user.type,
+                phoneNo: user.phoneNo,
+                dob: user.dob,
+                address: user.address,
+                state: user.state,
+                country: user.country,
+                email: user.email,
+            });
+        }
+
+        return res.status(400).send({ message: 'User does not exist!' });
     });
 }
 
@@ -230,5 +262,10 @@ usersRouter
     //     });
     // });
 
+usersRouter
+    .get('/details', (req, res) => {
+            return getUserDetails(req, res);
+        }
+    )
 
 module.exports = usersRouter;
