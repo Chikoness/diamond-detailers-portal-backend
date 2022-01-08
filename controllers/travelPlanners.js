@@ -30,7 +30,7 @@ const writePlanner = (req, res) => {
             const saved = await planner.save();
 
             if (saved) {
-                console.log('Planner to' + req.body.destination + ' created!')
+                console.log('Planner to ' + req.body.destination + ' created!')
                 return res.status(200).send({ message: 'Planner to' + req.body.destination + ' created!'});
             }
         }

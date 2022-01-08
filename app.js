@@ -9,6 +9,7 @@ const log = require('./utils/log');
 const usersRouter = require('./controllers/users');
 const journalsRouter = require('./controllers/journals')
 const travelPlannerRouter = require('./controllers/travelPlanners')
+const hotelsRouter = require('./controllers/hotels');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -17,5 +18,6 @@ app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/journals', journalsRouter);
 app.use('/api/travelplanner', travelPlannerRouter);
+app.user('/api/hotels', hotelsRouter);
 
 module.exports = app;
