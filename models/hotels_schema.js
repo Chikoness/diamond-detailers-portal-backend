@@ -9,6 +9,10 @@ const HotelsSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        required: true
+    },
     phoneNo: {
         type: String,
         required: true

@@ -138,6 +138,25 @@ const getUserDetails = (req, res) => {
     });
 }
 
+const getNumberOfUsers = (req, res) => {
+    const query = users.find({});
+    query.exec(async (err, user) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        if (user) {
+            num = Object.keys(user).length;
+
+            return res.status(200).send({
+                num: num
+            });
+        }
+
+        return res.status(400).send({ message: 'User does not exist!' });
+    });
+}
+
 // const resetPassword = (req, res) => {
 //     const query = users.findOne({ email: req.body.email });
 //     query.exec(async (err, user) => {
@@ -267,6 +286,12 @@ usersRouter
 usersRouter
     .get('/details', (req, res) => {
             return getUserDetails(req, res);
+        }
+    )
+
+usersRouter
+    .get('/numberOfUsers', (req, res) => {
+            return getNumberOfUsers(req, res);
         }
     )
 

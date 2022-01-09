@@ -19,6 +19,7 @@ const registerHotel = (req, res) => {
             const hotel = new hotels({
                 id: id,
                 name: req.body.name,
+                description: req.body.name,
                 phoneNo: req.body.phoneNo,
                 email: req.body.email,
                 websites: req.body.websites,
@@ -50,11 +51,27 @@ const getHotelsByState = (req, res) => {
         }
 
         if (data) {
-            let hotel = await hotels.findOne({ state: req.query.state });
-
             return res.status(200).send({
                 message: `All hotels from ${req.query.state}`,
-                data: hotel
+                data: data
+            })
+        }
+
+        return res.status(404).send({ message: `No hotels registered for ${req.query.state}!` });
+    });
+}
+
+const getHotelsByUser = (req, res) => {
+    const query = hotels.find({ email: req.query.email });
+    query.exec(async (err, data) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        if (data) {
+            return res.status(200).send({
+                message: `All hotels by ${req.query.email}`,
+                data: data
             })
         }
 
@@ -91,6 +108,7 @@ const editHotel = (req, res) => {
                 { id: req.body.id },
                 { $set: {
                     name: req.body.name,
+                    description: req.body.description,
                     phoneNo: req.body.phoneNo,
                     websites: req.body.websites,
                     star: req.body.star,
@@ -148,6 +166,11 @@ hotelsRouter
 hotelsRouter
     .get('/hotel/state', async(req, res) => {
         return getHotelsByState(req, res);
+    })
+
+hotelsRouter
+    .get('/hotel/user', async(req, res) => {
+        return getHotelsByUser(req, res);
     })
 
 hotelsRouter

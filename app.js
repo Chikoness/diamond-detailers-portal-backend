@@ -18,6 +18,6 @@ app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/journals', journalsRouter);
 app.use('/api/travelplanner', travelPlannerRouter);
-app.user('/api/hotels', hotelsRouter);
+app.use('/api/hotels', hotelsRouter);
 
 module.exports = app;
