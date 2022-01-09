@@ -19,7 +19,7 @@ const registerHotel = (req, res) => {
             const hotel = new hotels({
                 id: id,
                 name: req.body.name,
-                description: req.body.name,
+                description: req.body.description,
                 phoneNo: req.body.phoneNo,
                 email: req.body.email,
                 websites: req.body.websites,

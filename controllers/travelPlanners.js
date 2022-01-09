@@ -10,11 +10,11 @@ const writePlanner = (req, res) => {
             return res.status(500).send({ message: 'Error: ' + err });
         }
         if (data) {
-            let _planner = await planners.find({ email: req.body.email });
+            let _planner = await planners.find({});
 
-            var str = "" + Object.keys(_planner).length
-            var pad = "000"
-            var id = pad.substring(0, pad.length - str.length) + str
+            var str = Object.keys(_planner).length
+            var pad = Math.floor((Math.random() * 100) + 1);
+            var id = data.fName + data.lName + "-" + pad + "-" + str
 
             const planner = new planners({
                 id: id,

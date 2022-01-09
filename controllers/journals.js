@@ -12,17 +12,15 @@ const writeJournal = (req, res) => {
             return res.status(500).send({ message: 'Error: ' + err });
         }
         if (data) {
-            let _journal = await journals.find({ email: req.body.email });
+            let _journal = await journals.find({});
 
-            var str = "" + Object.keys(_journal).length
-            var pad = "000"
-            var id = pad.substring(0, pad.length - str.length) + str
-            
-            let generateRandomId = data.fName.charAt(0) + '-' + id;
+            var str = Object.keys(_journal).length
+            var pad = Math.floor((Math.random() * 100) + 1);
+            var id = data.fName + data.lName + "-" + pad + "-" + str            
 
             const journal = new journals({
                 title: req.body.title,
-                id: generateRandomId,
+                id: id,
                 content: req.body.content,
                 author: data.fName,
                 email: req.body.email,
@@ -59,6 +57,23 @@ const getOnlyUsersJournals = (req, res) => {
         }
 
         return res.status(404).send({ message: 'User doesn\'t exist' });
+    });
+}
+
+const getGlobalJournals = (req, res) => {
+    const query = journals.find({});
+    query.exec(async (err, data) => {
+        if (err) {
+            return res.status(500).send({ message: 'Error: ' + err });
+        }
+
+        if (data) {
+            return res.status(200).send({
+                data: data
+            })
+        }
+
+        return res.status(404).send({ message: 'No journals' });
     });
 }
 
@@ -141,6 +156,11 @@ journalsRouter
 journalsRouter
     .get('/user', async(req, res) => {
         return getOnlyUsersJournals(req, res);
+    })
+
+journalsRouter
+    .get('/all', async(req, res) => {
+        return getGlobalJournals(req, res);
     })
 
 journalsRouter

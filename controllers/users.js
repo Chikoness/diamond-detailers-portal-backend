@@ -123,7 +123,7 @@ const getUserDetails = (req, res) => {
             return res.status(200).send({
                 fName: user.fName,
                 lName: user.lName,
-                gender: req.body.gender,
+                gender: user.gender,
                 type: user.type,
                 phoneNo: user.phoneNo,
                 dob: user.dob,
