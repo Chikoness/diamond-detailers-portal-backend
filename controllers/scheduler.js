@@ -81,8 +81,31 @@ const updateScheduler = (req, res) => {
   });
 };
 
+const getScheduler = (req, res) => {
+  const query = schedulers.findOne({ hotelId: req.query.hotelId });
+  query.exec(async (err, data) => {
+    if (err) {
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    if (data) {
+      return res.status(200).send({
+        data: data,
+      });
+    }
+
+    return res.status(200).send({
+      data: [],
+    });
+  });
+}
+
 schedulerRouter.post("/updateScheduler", async (req, res) => {
   return updateScheduler(req, res);
+});
+
+schedulerRouter.get("/getScheduler", async (req, res) => {
+  return getScheduler(req, res);
 });
 
 module.exports = schedulerRouter;

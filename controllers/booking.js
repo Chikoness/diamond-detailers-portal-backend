@@ -25,6 +25,7 @@ const registerBooking = (req, res) => {
         hotelId: req.body.hotelId,
         email: req.body.email,
         booking: req.body.booking,
+        vaccination: req.body.vaccination
       });
 
       const saved = await booking.save();
@@ -40,7 +41,7 @@ const registerBooking = (req, res) => {
 };
 
 const getBooking = (req, res) => {
-  const query = bookings.findOne({ hotelId: req.query.hotelId });
+  const query = bookings.find({ hotelId: req.query.hotelId });
   query.exec(async (err, data) => {
     if (err) {
       return res.status(500).send({ message: "Error: " + err });
@@ -56,12 +57,67 @@ const getBooking = (req, res) => {
   });
 };
 
+const getUserBooking = (req, res) => {
+  const query = bookings.find({ email: req.query.email });
+  query.exec(async (err, data) => {
+    if (err) {
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    if (data) {
+      return res.status(200).send({
+        data: data,
+      });
+    }
+
+    return res.status(404).send({ message: "No hotel bookings for this user yet!" });
+  });
+};
+
+const editBooking = (req, res) => {
+  const query = bookings.findOne({ id: req.body.id });
+  query.exec(async (err, data) => {
+    if (err) {
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    if (data) {
+      let book = await bookings.updateMany(
+        { id: req.body.id },
+        {
+          $set: {
+            status: req.body.status
+          },
+        }
+      );
+
+      if (book) {
+        return res.status(200).send({
+          message: `Booking ${req.body.id} edited!`,
+        });
+      }
+
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    return res.status(404).send({ message: "Hotel doesn't exist" });
+  });
+};
+
 bookingRouter.post("/registerBooking", async (req, res) => {
   return registerBooking(req, res);
 });
 
 bookingRouter.get("/getBooking", async (req, res) => {
   return getBooking(req, res);
+});
+
+bookingRouter.get("/getUserBooking", async (req, res) => {
+    return getUserBooking(req, res);
+  });
+
+bookingRouter.post("/editBooking", async (req, res) => {
+    return editBooking(req, res);
 });
 
 module.exports = bookingRouter;

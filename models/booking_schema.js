@@ -27,6 +27,14 @@ const BookingSchema = mongoose.Schema({
     booking: {
         type: Object,
         required: true
+    },
+    status: {
+        type: String,
+        default: "Pending"
+    },
+    vaccination: {
+        type: String,
+        required: true
     }
 });
 
