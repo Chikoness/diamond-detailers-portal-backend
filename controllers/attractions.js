@@ -11,9 +11,9 @@ const registerAttraction = (req, res) => {
     if (data) {
       let _attraction = await attractions.find({ email: req.body.email });
 
-      var str = "" + Object.keys(_attraction).length;
+      var str = Object.keys(_attraction).length + 1;
       var pad = "000";
-      var id = "attr-" + pad.substring(0, pad.length - str.length) + (str + 1);
+      var id = "attr-" + pad.substring(0, pad.length - str.length) + str;
 
       const attraction = new attractions({
         id: id,
@@ -157,27 +157,27 @@ const deleteOneAttraction = (req, res) => {
   });
 };
 
-attractionsRouter.post("/attractions/register", async (req, res) => {
+attractionsRouter.post("/registerAttraction", async (req, res) => {
   return registerAttraction(req, res);
 });
 
-attractionsRouter.get("/attractions/all", async (req, res) => {
+attractionsRouter.get("/attraction/all", async (req, res) => {
   return getAllAttractions(req, res);
 });
 
-attractionsRouter.get("/attractions/state", async (req, res) => {
+attractionsRouter.get("/attraction/state", async (req, res) => {
   return getAttractionsByState(req, res);
 });
 
-attractionsRouter.get("/attractions", async (req, res) => {
+attractionsRouter.get("/attraction", async (req, res) => {
   return getOneAttraction(req, res);
 });
 
-attractionsRouter.post("/attractions", async (req, res) => {
+attractionsRouter.post("/attraction", async (req, res) => {
   return editAttraction(req, res);
 });
 
-attractionsRouter.delete("/attractions", async (req, res) => {
+attractionsRouter.delete("/attraction", async (req, res) => {
   return deleteOneAttraction(req, res);
 });
 

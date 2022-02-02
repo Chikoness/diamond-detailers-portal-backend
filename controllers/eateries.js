@@ -11,9 +11,9 @@ const registerEatery = (req, res) => {
     if (data) {
       let _eatery = await eateries.find({ email: req.body.email });
 
-      var str = "" + Object.keys(_eatery).length;
+      var str = Object.keys(_eatery).length + 1;
       var pad = "000";
-      var id = "eatery-" + pad.substring(0, pad.length - str.length) + (str + 1);
+      var id = "eatery-" + pad.substring(0, pad.length - str.length) + str;
 
       const eatery = new eateries({
         id: id,
@@ -181,31 +181,31 @@ const deleteOneEatery = (req, res) => {
   });
 };
 
-eateriesRouter.post("/eateries/register", async (req, res) => {
+eateriesRouter.post("/registerEatery", async (req, res) => {
   return registerEatery(req, res);
 });
 
-eateriesRouter.get("/eateries/all", async (req, res) => {
+eateriesRouter.get("/eatery/all", async (req, res) => {
   return getAllEateries(req, res);
 });
 
-eateriesRouter.get("/eateries/state", async (req, res) => {
+eateriesRouter.get("/eatery/state", async (req, res) => {
   return getEateriesByState(req, res);
 });
 
-eateriesRouter.get("/eateries/user", async (req, res) => {
+eateriesRouter.get("/eatery/user", async (req, res) => {
   return getEateriesByUser(req, res);
 });
 
-eateriesRouter.get("/eateries/", async (req, res) => {
+eateriesRouter.get("/eatery", async (req, res) => {
   return getOneEatery(req, res);
 });
 
-eateriesRouter.post("/eateries/", async (req, res) => {
+eateriesRouter.post("/eatery", async (req, res) => {
   return editEatery(req, res);
 });
 
-eateriesRouter.delete("/eateries/", async (req, res) => {
+eateriesRouter.delete("/eatery", async (req, res) => {
   return deleteOneEatery(req, res);
 });
 

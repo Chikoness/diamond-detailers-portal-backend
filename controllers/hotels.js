@@ -12,9 +12,9 @@ const registerHotel = (req, res) => {
     if (data) {
       let _hotel = await hotels.find({ email: req.body.email });
 
-      var str = "" + Object.keys(_hotel).length;
+      var str = Object.keys(_hotel).length + 1;
       var pad = "000";
-      var id = "hotel-" + pad.substring(0, pad.length - str.length) + (str + 1);
+      var id = "hotel-" + pad.substring(0, pad.length - str.length) + str;
 
       const hotel = new hotels({
         id: id,
