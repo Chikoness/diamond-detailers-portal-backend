@@ -13,7 +13,7 @@ const registerAttraction = (req, res) => {
 
       var str = "" + Object.keys(_attraction).length;
       var pad = "000";
-      var id = "attr-" + pad.substring(0, pad.length - str.length) + str;
+      var id = "attr-" + pad.substring(0, pad.length - str.length) + (str + 1);
 
       const attraction = new attractions({
         id: id,

@@ -13,7 +13,7 @@ const registerEatery = (req, res) => {
 
       var str = "" + Object.keys(_eatery).length;
       var pad = "000";
-      var id = "hotel-" + pad.substring(0, pad.length - str.length) + str;
+      var id = "eatery-" + pad.substring(0, pad.length - str.length) + (str + 1);
 
       const eatery = new eateries({
         id: id,

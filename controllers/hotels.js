@@ -14,7 +14,7 @@ const registerHotel = (req, res) => {
 
       var str = "" + Object.keys(_hotel).length;
       var pad = "000";
-      var id = "hotel-" + pad.substring(0, pad.length - str.length) + str;
+      var id = "hotel-" + pad.substring(0, pad.length - str.length) + (str + 1);
 
       const hotel = new hotels({
         id: id,
