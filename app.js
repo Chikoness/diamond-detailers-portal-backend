@@ -12,6 +12,8 @@ const travelPlannerRouter = require('./controllers/travelPlanners');
 const hotelsRouter = require('./controllers/hotels');
 const bookingRouter = require('./controllers/booking');
 const schedulerRouter = require('./controllers/scheduler');
+const eateriesRouter = require('./controllers/eateries');
+const attractionsRouter = require('./controllers/attractions');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -23,5 +25,7 @@ app.use('/api/travelplanner', travelPlannerRouter);
 app.use('/api/hotels', hotelsRouter);
 app.use('/api/booking', bookingRouter);
 app.use('/api/scheduler', schedulerRouter);
+app.use('/api/eateries', eateriesRouter);
+app.use('/api/attractions', attractionsRouter);
 
 module.exports = app;
