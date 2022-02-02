@@ -1,4 +1,5 @@
 const eateries = require("../models/eateries_schema");
+const users = require("../models/users_schema");
 const eateriesRouter = require("express").Router();
 
 const registerEatery = (req, res) => {
