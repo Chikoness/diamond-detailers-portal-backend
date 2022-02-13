@@ -25,6 +25,7 @@ const registerBooking = (req, res) => {
         hotelId: req.body.hotelId,
         email: req.body.email,
         booking: req.body.booking,
+        price: req.body.price,
         vaccination: req.body.vaccination
       });
 

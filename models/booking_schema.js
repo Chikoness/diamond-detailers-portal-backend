@@ -28,6 +28,10 @@ const BookingSchema = mongoose.Schema({
         type: Object,
         required: true
     },
+    price: {
+        type: Number,
+        required: true
+    },
     status: {
         type: String,
         default: "Pending"
