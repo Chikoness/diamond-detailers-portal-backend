@@ -1,7 +1,7 @@
 {
-  "name": "travee-travel-backend",
+  "name": "diamond-detailers-portal-backend",
   "version": "0.0.1",
-  "description": "Travee Travel App Companion backend in Express.js",
+  "description": "Diamond Detailers Portal (DDP) backend in Express.js",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
