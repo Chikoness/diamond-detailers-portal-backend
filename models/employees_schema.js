@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const appointmentSchema = mongoose.Schema({
+const employeesSchema = mongoose.Schema({
     id: {
         type: String,
         required: true
@@ -9,26 +9,34 @@ const appointmentSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    email: {
+    description: {
         type: String,
         required: true
     },
-    carType: {
+    phoneNo: {
         type: String,
         required: true
     },
-    services: {
+    websites: {
         type: Array,
         required: true
     },
-    date: {
-        type: Date,
+    sop: {
+        type: Array,
         required: true
     },
-    timeSlot: {
+    address: {
         type: String,
         required: true
-    }
+    },
+    state: {
+        type: String,
+        required: true
+    },
+    country: {
+        type: String,
+        required: true
+    },
 });
 
-module.exports = mongoose.model('attractions', appointmentSchema)
+module.exports = mongoose.model('attractions', employeesSchema)
