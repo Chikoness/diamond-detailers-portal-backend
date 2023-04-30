@@ -29,6 +29,7 @@ const appointmentSchema = mongoose.Schema({
         type: String,
         required: true
     }
+    
 });
 
 module.exports = mongoose.model('attractions', appointmentSchema)
