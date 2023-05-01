@@ -48,6 +48,7 @@ const authenticateEmployee = (req, res) => {
         securityLvl: user.securityLvl,
       });
     }
+    
     return res.status(400).send({ message: "Employee does not exist!" });
   });
 };
