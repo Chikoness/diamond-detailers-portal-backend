@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 
 const employeesSchema = mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
     name: {
         type: String,
         required: true
     },
-    description: {
+    icNumber: {
         type: String,
         required: true
     },
@@ -17,26 +13,22 @@ const employeesSchema = mongoose.Schema({
         type: String,
         required: true
     },
-    websites: {
-        type: Array,
-        required: true
-    },
-    sop: {
-        type: Array,
+    email: {
+        type: String,
         required: true
     },
     address: {
         type: String,
-        required: true
+        required: false
     },
-    state: {
+    position: {
         type: String,
         required: true
     },
-    country: {
-        type: String,
+    securityLvl: {
+        type: Number,
         required: true
     },
 });
 
-module.exports = mongoose.model('attractions', employeesSchema)
+module.exports = mongoose.model('employees', employeesSchema)

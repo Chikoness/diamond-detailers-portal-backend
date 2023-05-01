@@ -7,7 +7,6 @@ const server = http.createServer(app);
 
 mongo.connectDB.then(() => {
     server.listen(config.PORT, () => {
-        console.log('---------------------------------\n');
         log.info(`Server is running on port ${config.PORT} \n`);
     });
 

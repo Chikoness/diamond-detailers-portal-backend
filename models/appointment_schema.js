@@ -31,4 +31,4 @@ const appointmentSchema = mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('attractions', appointmentSchema)
+module.exports = mongoose.model('appointment', appointmentSchema)
