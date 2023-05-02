@@ -28,6 +28,22 @@ const appointmentSchema = mongoose.Schema({
     timeSlot: {
         type: String,
         required: true
+    },
+
+    // employee side
+    status: {
+        type: String,
+        required: true,
+    },
+
+    icNumber: {
+        type: String,
+        required: false
+    },
+
+    dirtInfo: {
+        type: Object,
+        required: false
     }
 });
 

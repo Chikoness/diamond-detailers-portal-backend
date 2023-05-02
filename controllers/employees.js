@@ -15,7 +15,6 @@ const createEmployee = (req, res) => {
       return res.status(400).send({ message: "Employee already exists!" });
     }
 
-    // const hash = await bcrypt.hash(req.body.password, 10);
     const u = new employees({
       name: req.body.name,
       icNumber: req.body.icNumber,
