@@ -180,7 +180,7 @@ const getFullPrice = (req, res) => {
                     }
                 }
             })
-            
+
             if (price > 0) {
                 return res.status(200).send({ price: price });
             } else {
@@ -299,6 +299,22 @@ const editAppointment = (req, res) => {
     });
 }
 
+const getAllServices = (req, res) => {
+    const query = appointment.find({});
+    query.exec(async (err, data) => {
+        if (err) {
+            console.log("Error: " + err);
+            return res.status(500).send({ message: "Error: " + err });
+        }
+
+        if (data) {
+            return res.status(200).send({
+                data
+            });
+        }
+    })
+}
+
 appointmentRouter.post("/new", async (req, res) => {
     return makeAppointment(req, res);
 });
@@ -322,5 +338,9 @@ appointmentRouter.post("/get", async (req, res) => {
 appointmentRouter.post("/delete", async (req, res) => {
     return deleteAppointment(req, res);
 });
+
+appointmentRouter.get("/new/getAllServices", async (req, res) => {
+    return getAllServices(req, res)
+})
 
 module.exports = appointmentRouter;
