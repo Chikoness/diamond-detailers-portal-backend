@@ -52,6 +52,65 @@ const authenticateEmployee = (req, res) => {
   });
 };
 
+const editEmployee = (req, res) => {
+  const query = employees.findOne({ icNumber: req.body.icNumber });
+  query.exec(async (err, user) => {
+    if (err) {
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    if (user) {
+      let emp = await eateries.updateMany(
+        { id: req.body.id },
+        {
+          $set: {
+            phoneNo: req.body.phoneNo,
+            email: req.body.email,
+            address: req.body.address ? req.body.address : '',
+            position: req.body.position,
+            securityLvl: req.body.securityLvl
+          },
+        }
+      );
+
+      if (emp) {
+        return res.status(200).send({
+          message: `Employee ${req.body.icNumber} edited!`,
+        });
+      }
+
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    return res.status(404).send({ message: "Employee doesn't exist" });
+  });
+}
+
+const deleteEmployee = (req, res) => {
+  const query = employees.findOne({ icNumber: req.body.icNumber });
+  query.exec(async (err, user) => {
+    if (err) {
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    if (user) {
+      let emp = await employees.deleteOne({
+        id: req.query.id,
+      });
+
+      if (emp) {
+        return res.status(200).send({
+          message: `Employee ${req.body.icNumber} deleted!`,
+        });
+      }
+
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    return res.status(404).send({ message: "Employee doesn't exist" });
+  });
+};
+
 // const getUserDetails = (req, res) => {
 //   const query = employees.findOne({ email: req.query.email });
 //   query.exec(async (err, user) => {
@@ -103,6 +162,14 @@ employeesRouter.post("/register", (req, res) => {
 
 employeesRouter.post("/authenticate", (req, res) => {
   return authenticateEmployee(req, res);
+})
+
+employeesRouter.post("/edit", (req, res) => {
+  return editEmployee(req, res);
+})
+
+employeesRouter.post("/delete", (req, res) => {
+  return deleteEmployee(req, res)
 })
 
 module.exports = employeesRouter;
