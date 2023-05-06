@@ -8,7 +8,7 @@ const appointmentRouter = require("express").Router();
 const makeAppointment = (req, res) => {
     let date = new Date(req.body.date)
     let dateInString = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate()
-    
+
     const querySlot = slot.findOne({ date: dateInString })
     querySlot.exec(async (err, data) => {
         let getAllAppointments = await appointment.find({});
@@ -184,7 +184,7 @@ const getFullPrice = (req, res) => {
             if (price > 0) {
                 return res.status(200).send({ price: price });
             } else {
-                return res.status(404).send({ message: "Price compilation error, please try again"});
+                return res.status(404).send({ message: "Price compilation error, please try again" });
             }
         }
     })
@@ -232,7 +232,7 @@ const deleteAppointment = (req, res) => {
 
                     if (data2) {
                         let tempData = data2.timeSlots
-                        
+
                         const deleteId = tempData[req.body.timeSlot].filter(ts => {
                             return ts !== req.body.id;
                         });
@@ -254,7 +254,7 @@ const deleteAppointment = (req, res) => {
 
                 return res.status(200).send({
                     message: `Appointment ${req.body.id} deleted!`,
-                
+
                 });
 
             }
@@ -275,12 +275,100 @@ const editAppointment = (req, res) => {
         }
 
         if (data) {
+            // Delete the apppointment off the slots database
+            let date = new Date(req.body.oldDate)
+            let dateInString = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate()
+
+            const querySlotOld = slot.findOne({ date: dateInString })
+            querySlotOld.exec(async (err2, data2) => {
+                if (err2) {
+                    return res.status(500).send({ message: "Error: " + err });
+                }
+
+                if (data2) {
+                    let tempData = data2.timeSlots
+
+                    const deleteId = tempData[req.body.oldTimeSlot].filter(ts => {
+                        return ts !== req.body.id;
+                    });
+
+                    tempData[req.body.oldTimeSlot] = deleteId
+
+                    await slot.updateOne(
+                        { date: dateInString },
+                        {
+                            $set: {
+                                timeSlots: tempData
+                            },
+                        }
+                    );
+
+                    // Add the new appointment to slot database
+                    let newDate = new Date(req.body.date)
+                    let newDateInString = newDate.getFullYear() + "/" + (newDate.getMonth() + 1) + "/" + newDate.getDate()
+
+                    const querySlotNew = slot.findOne({ date: newDateInString })
+                    querySlotNew.exec(async (err3, data3) => {
+                        if (err3) {
+                            return res.status(500).send({ message: "Error: " + err });
+                        }
+
+                        if (data3) {
+                            let timeSlotLocal = data3.timeSlots
+
+                            for (let i = 0; i < req.body.services.length; i++) {
+                                if (timeSlotLocal[req.body.timeSlot].length < 3) {
+                                    timeSlotLocal[req.body.timeSlot].push(req.body.id)
+                                } else {
+                                    return res.status(403).send({ message: "Slot for " + req.body.timeSlot + " is full. Please pick a different slot." });
+                                }
+                            }
+
+                            await slot.updateOne(
+                                { date: newDateInString },
+                                {
+                                    $set: {
+                                        timeSlots: timeSlotLocal
+                                    },
+                                }
+                            );
+
+                            // add the car to customer's entry in customer database if not exist
+                            const query = customers.findOne({ email: req.body.email });
+                            query.exec(async (err4, data4) => {
+                                if (err4) {
+                                    console.log("Error: " + err);
+                                    return res.status(500).send({ message: "Error: " + err });
+                                }
+
+                                if (data4) {
+                                    // if customer exists, check if customer has such carType, if not, add it to the array of carType
+                                    if (!data4.carType.includes(req.body.carType)) {
+                                        let carTypeArray = data4.carType
+                                        carTypeArray.push(req.body.carType)
+
+                                        await customers.updateOne(
+                                            { id: req.body.id },
+                                            {
+                                                $set: {
+                                                    carType: carTypeArray
+                                                },
+                                            }
+                                        );
+                                    }
+                                }
+                            })
+                        }
+                    })
+                } else {
+                    return res.status(403).send({ message: "Appointment does not exist: " + err });
+                }
+            })
+
             let appt = await appointment.updateOne(
                 { id: req.body.id },
                 {
                     $set: {
-                        name: req.body.name,
-                        email: req.body.email,
                         carType: req.body.carType,
                         services: req.body.services,
                         date: req.body.date,
@@ -291,7 +379,10 @@ const editAppointment = (req, res) => {
             );
 
             if (appt) {
-                return res.status(200).send({ message: "Appointment " + data.id + " edited!" });
+                return res.status(200).send(
+                    {
+                        message: "Appointment " + data.id + " edited - from " + req.body.oldDate + "; " + req.body.oldTimeSlot + " --> " + req.body.date + "; " + req.body.timeSlot + "."
+                    });
             }
         } else {
             return res.status(400).send({ message: "Appointment not in database. Please make new appointment or try again." });
