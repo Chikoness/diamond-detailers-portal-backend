@@ -60,8 +60,8 @@ const editEmployee = (req, res) => {
     }
 
     if (user) {
-      let emp = await eateries.updateMany(
-        { id: req.body.id },
+      let emp = await employees.updateOne(
+        { icNumber: req.body.icNumber },
         {
           $set: {
             phoneNo: req.body.phoneNo,
@@ -86,6 +86,23 @@ const editEmployee = (req, res) => {
   });
 }
 
+const getEmployee = (req, res) => {
+  const query = employees.findOne({ icNumber: req.body.icNumber });
+  query.exec(async (err, user) => {
+    if (err) {
+      return res.status(500).send({ message: "Error: " + err });
+    }
+
+    if (user) {
+      return res.status(200).send({
+        user,
+      });
+    }
+
+    return res.status(404).send({ message: "Employee doesn't exist" });
+  })
+}
+
 const deleteEmployee = (req, res) => {
   const query = employees.findOne({ icNumber: req.body.icNumber });
   query.exec(async (err, user) => {
@@ -95,7 +112,7 @@ const deleteEmployee = (req, res) => {
 
     if (user) {
       let emp = await employees.deleteOne({
-        id: req.query.id,
+        icNumber: req.body.icNumber,
       });
 
       if (emp) {
@@ -170,6 +187,10 @@ employeesRouter.post("/edit", (req, res) => {
 
 employeesRouter.post("/delete", (req, res) => {
   return deleteEmployee(req, res)
+})
+
+employeesRouter.post("/get", (req, res) => {
+  return getEmployee(req, res)
 })
 
 module.exports = employeesRouter;
