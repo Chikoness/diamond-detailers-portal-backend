@@ -7,21 +7,21 @@ const appointmentRouter = require("express").Router();
 
 const makeAppointment = (req, res) => {
     let date = new Date(req.body.date)
-    let dateInString = 
-            date.getFullYear() + "/" + 
-            ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" + 
-            ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
+    let dateInString =
+        date.getFullYear() + "/" +
+        ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" +
+        ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
 
     const querySlot = slot.findOne({ date: dateInString })
     querySlot.exec(async (err, data) => {
         let getAllAppointments = await appointment.find({});
-        let dateInStringNoSlash = 
-            date.getFullYear() + "" + 
-            ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "" + 
+        let dateInStringNoSlash =
+            date.getFullYear() + "" +
+            ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "" +
             ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
-        
+
         let id = req.body.name.substring(0, 3) + "-" + dateInStringNoSlash + "-" + Object.keys(getAllAppointments).length;
-        
+
         if (err) {
             console.log("Error: " + err);
             return res.status(500).send({ message: "Error: " + err });
@@ -121,7 +121,7 @@ const makeAppointment = (req, res) => {
 
                 if (saved) {
                     console.log("appointment " + id + " created!");
-                    return res.status(200).send({ 
+                    return res.status(200).send({
                         message: "appointment " + id + " created!",
                         id: id
                     });
@@ -135,10 +135,10 @@ const makeAppointment = (req, res) => {
 
 const checkSlotAvailability = (req, res) => {
     let date = new Date(req.body.date)
-    let dateInString = 
-            date.getFullYear() + "/" + 
-            ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" + 
-            ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
+    let dateInString =
+        date.getFullYear() + "/" +
+        ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" +
+        ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
 
     const querySlot = slot.findOne({ date: dateInString })
 
@@ -176,6 +176,28 @@ const checkSlotAvailability = (req, res) => {
     })
 }
 
+const getAllAppointments = (req, res) => {
+    const query = appointment.find({});
+    query.exec(async (err, data) => {
+        if (err) {
+            console.log("Error: " + err);
+            return res.status(500).send({ message: "Error: " + err });
+        }
+
+        if (data) {
+            return res.status(200).send({
+                data
+            });
+        } else {
+            return res.status(403).send({
+                message: 'No appointments made.',
+                data: []
+            })
+        }
+    })
+
+}
+
 const getFullPrice = (req, res) => {
     const query = services.find({})
     query.exec(async (err, data) => {
@@ -205,7 +227,7 @@ const getFullPrice = (req, res) => {
 }
 
 const getAppointment = (req, res) => {
-    const query = appointment.findOne({ id: req.body.id });
+    const query = appointment.findOne({ id: req.query.id });
     query.exec(async (err, data) => {
         if (err) {
             console.log("Error: " + err);
@@ -236,9 +258,9 @@ const deleteAppointment = (req, res) => {
 
             if (appt) {
                 let date = new Date(req.body.date)
-                let dateInString = 
-                    date.getFullYear() + "/" + 
-                    ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" + 
+                let dateInString =
+                    date.getFullYear() + "/" +
+                    ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" +
                     ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
 
                 const querySlot = slot.findOne({ date: dateInString })
@@ -294,9 +316,9 @@ const editAppointment = (req, res) => {
         if (data) {
             // Delete the apppointment off the slots database
             let date = new Date(req.body.oldDate)
-            let dateInString = 
-                date.getFullYear() + "/" + 
-                ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" + 
+            let dateInString =
+                date.getFullYear() + "/" +
+                ((date.getMonth() + 1).toString().length == 1 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1)) + "/" +
                 ((date.getDate()).toString().length == 1 ? '0' + (date.getDate()) : (date.getDate()))
 
             const querySlotOld = slot.findOne({ date: dateInString })
@@ -325,9 +347,9 @@ const editAppointment = (req, res) => {
 
                     // Add the new appointment to slot database
                     let newDate = new Date(req.body.date)
-                    let newDateInString = 
-                        newDate.getFullYear() + "/" + 
-                        ((newDate.getMonth() + 1).toString().length == 1 ? '0' + (newDate.getMonth() + 1) : (newDate.getMonth() + 1)) + "/" + 
+                    let newDateInString =
+                        newDate.getFullYear() + "/" +
+                        ((newDate.getMonth() + 1).toString().length == 1 ? '0' + (newDate.getMonth() + 1) : (newDate.getMonth() + 1)) + "/" +
                         ((newDate.getDate()).toString().length == 1 ? '0' + (newDate.getDate()) : (newDate.getDate()))
 
                     const querySlotNew = slot.findOne({ date: newDateInString })
@@ -445,9 +467,13 @@ appointmentRouter.post("/edit", async (req, res) => {
     return editAppointment(req, res);
 });
 
-appointmentRouter.post("/get", async (req, res) => {
+appointmentRouter.get("/get", async (req, res) => {
     return getAppointment(req, res);
 });
+
+appointmentRouter.get('/all', async (req, res) => {
+    return getAllAppointments(req, res);
+})
 
 appointmentRouter.post("/delete", async (req, res) => {
     return deleteAppointment(req, res);
