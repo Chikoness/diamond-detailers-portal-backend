@@ -195,7 +195,6 @@ const getAllAppointments = (req, res) => {
             })
         }
     })
-
 }
 
 const getFullPrice = (req, res) => {
@@ -235,6 +234,7 @@ const getAppointment = (req, res) => {
         }
 
         if (data) {
+            console.log(data)
             return res.status(200).send({
                 data,
             });

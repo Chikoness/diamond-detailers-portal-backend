@@ -87,7 +87,7 @@ const editEmployee = (req, res) => {
 }
 
 const getEmployee = (req, res) => {
-  const query = employees.findOne({ icNumber: req.body.icNumber });
+  const query = employees.findOne({ icNumber: req.query.icNumber });
   query.exec(async (err, user) => {
     if (err) {
       return res.status(500).send({ message: "Error: " + err });
@@ -100,6 +100,27 @@ const getEmployee = (req, res) => {
     }
 
     return res.status(404).send({ message: "Employee doesn't exist" });
+  })
+}
+
+const getAllEmployees = (req, res) => {
+  const query = employees.find({});
+  query.exec(async (err, data) => {
+      if (err) {
+          console.log("Error: " + err);
+          return res.status(500).send({ message: "Error: " + err });
+      }
+
+      if (data) {
+          return res.status(200).send({
+              data
+          });
+      } else {
+          return res.status(403).send({
+              message: 'No employees registered.',
+              data: []
+          })
+      }
   })
 }
 
@@ -189,8 +210,12 @@ employeesRouter.post("/delete", (req, res) => {
   return deleteEmployee(req, res)
 })
 
-employeesRouter.post("/get", (req, res) => {
+employeesRouter.get("/get", (req, res) => {
   return getEmployee(req, res)
+})
+
+employeesRouter.get("/all", (req, res) => {
+  return getAllEmployees(req, res)
 })
 
 module.exports = employeesRouter;
