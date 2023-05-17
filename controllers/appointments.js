@@ -113,8 +113,9 @@ const makeAppointment = (req, res) => {
                     services: req.body.services,
                     date: req.body.date,
                     timeSlot: req.body.timeSlot,
-                    status: "Pending"
-
+                    status: "Pending",
+                    icNumber: "",
+                    dirtInfo: {}
                 });
 
                 const saved = await appt.save();
@@ -234,7 +235,6 @@ const getAppointment = (req, res) => {
         }
 
         if (data) {
-            console.log(data)
             return res.status(200).send({
                 data,
             });
@@ -418,7 +418,9 @@ const editAppointment = (req, res) => {
                         services: req.body.services,
                         date: req.body.date,
                         timeSlot: req.body.timeSlot,
-                        status: req.body.status
+                        status: req.body.status,
+                        icNumber: req.body.icNumber,
+                        dirtInfo: req.body.dirtInfo ? req.body.dirtInfo : {}
                     },
                 }
             );
@@ -450,6 +452,10 @@ const getAllServices = (req, res) => {
         }
     })
 }
+
+// const inputDirtLevel = (req, res) => {
+//     const query = 
+// }
 
 appointmentRouter.post("/new", async (req, res) => {
     return makeAppointment(req, res);
