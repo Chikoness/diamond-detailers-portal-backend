@@ -437,6 +437,36 @@ const editAppointment = (req, res) => {
     });
 }
 
+const inputDirtLvl = (req, res) => {
+    const query = appointment.findOne({ id: req.body.id });
+    query.exec(async (err, data) => {
+        if (err) {
+            console.log("Error: " + err);
+            return res.status(500).send({ message: "Error: " + err });
+        }
+
+        if (data) {
+            let appt = await appointment.updateOne(
+                { id: req.body.id },
+                {
+                    $set: {
+                        dirtInfo: req.body.dirtInfo
+                    },
+                }
+            );
+
+            if (appt) {
+                return res.status(200).send(
+                    {
+                        message: "Appointment " + req.body.id + " dirt level input success."
+                    });
+            } else {
+                return res.status(400).send({ message: "Appointment not in database. Please make new appointment or try again." });
+            }
+        }
+    })
+}
+
 const getAllServices = (req, res) => {
     const query = services.find({});
     query.exec(async (err, data) => {
@@ -488,5 +518,9 @@ appointmentRouter.post("/delete", async (req, res) => {
 appointmentRouter.get("/new/getAllServices", async (req, res) => {
     return getAllServices(req, res)
 })
+
+appointmentRouter.post("/dirt", async (req, res) => {
+    return inputDirtLvl(req, res);
+});
 
 module.exports = appointmentRouter;
