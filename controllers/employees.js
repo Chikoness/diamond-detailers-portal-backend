@@ -1,7 +1,4 @@
-// const config = require("../utils/config");
 const employees = require("../models/employees_schema");
-// const jwt = require("jsonwebtoken");
-// const bcrypt = require("bcrypt");
 const employeesRouter = require("express").Router();
 
 const createEmployee = (req, res) => {
