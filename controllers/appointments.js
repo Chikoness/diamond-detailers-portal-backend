@@ -2,8 +2,9 @@ const customers = require("../models/customer_schema");
 const appointment = require("../models/appointment_schema");
 const slot = require("../models/slots_schema")
 const services = require("../models/services_schema");
-// const e = require("cors");
 const appointmentRouter = require("express").Router();
+const nodemailer = require('nodemailer'); // disable forgot password for now
+const APPPASSWORD = process.env.APPPASSWORD;
 
 const makeAppointment = (req, res) => {
     let date = new Date(req.body.date)
@@ -291,6 +292,10 @@ const deleteAppointment = (req, res) => {
                     }
                 })
 
+                if (req.body.status !== 'Finished' || req.body.status !== 'Paid') {
+                    await email.sendMail(rejectedAppointmentEmail(req.body.id, req.body.email))
+                }
+
                 return res.status(200).send({
                     message: `Appointment ${req.body.id} deleted!`,
 
@@ -426,6 +431,12 @@ const editAppointment = (req, res) => {
             );
 
             if (appt) {
+                if (req.body.status == 'Paid') {
+                    await email.sendMail(confirmedAppointmentEmail(req.body.id, req.body.email))
+                } else if (req.body.status == 'Cancelled') {
+                    await email.sendMail(rejectedAppointmentEmail(req.body.id, req.body.email))
+                }
+
                 return res.status(200).send(
                     {
                         message: "Appointment " + data.id + " edited - from " + req.body.oldDate + "; " + req.body.oldTimeSlot + " --> " + req.body.date + "; " + req.body.timeSlot + "."
@@ -483,9 +494,67 @@ const getAllServices = (req, res) => {
     })
 }
 
-// const inputDirtLevel = (req, res) => {
-//     const query = 
-// }
+const email = nodemailer.createTransport(
+    {
+        host: "smtp.gmail.com",
+        secure: false,
+        auth: {
+            user: "diamonddetailers8@gmail.com",
+            pass: APPPASSWORD
+        },
+        logger: true,
+        transactionLog: true // include SMTP traffic in the logs
+    },
+    {
+        from: 'Diamond Detailers Plt <diamonddetailers8@gmail.com>'
+    }
+);
+  
+const confirmedAppointmentEmail = (apptID, recipientEmail) => {
+    return {
+        to: `${recipientEmail}`, // comma separated list of recipients
+        subject: `Diamond Detailers: Your Appointment Is Confirmed!`,
+        html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
+            Your payment for the appointment ID ${apptID} has been successfully received! Your appointment is now <b>confirmed</b>!<br /><br />
+            We hope to see you soon! To be safe, please arrive at least 10 minutes before your appointment to avoid any disappointment.<br /><br /><br /><br />
+            Regards,<br />
+            Diamond Detailers PLT<br />
+            @instagram: diamonddetailersplt<br />
+            @Facebook: https://www.facebook.com/DiamondDetailersPLOT`,
+        // html: `Dear Traveer, <br/> As requested, please click <a href=${resetLink}>here</a> to reset the user password for ${recipientEmail}.`
+    }
+}
+  
+const rejectedAppointmentEmail = (apptID, recipientEmail) => {
+    return {
+        to: `${recipientEmail}`, // comma separated list of recipients
+        subject: `Diamond Detailers: Your Appointment Has Been Cancelled`,
+        html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
+            Your payment for the appointment ID ${apptID} has not been received, and therefore the appointment is deemed cancelled.<br /><br />
+            We apologize for the inconvenience, if you feel that this is a mistake, please contact us to clarify this mistake.<br /><br /><br /><br />
+            Regards,<br />
+            Diamond Detailers PLT<br />
+            @instagram: diamonddetailersplt<br />
+            @Facebook: https://www.facebook.com/DiamondDetailersPLOT`,
+        // html: `Dear Traveer, <br/> As requested, please click <a href=${resetLink}>here</a> to reset the user password for ${recipientEmail}.`
+    }
+}
+
+const carWashReminderEmail = (time, date, recipientEmail) => {
+    return {
+        to: `${recipientEmail}`,
+        subject: `🚗 Reminder For Your Car Wash Service`,
+        html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
+            This is a reminder for your car wash and service appointment you have made with us some time ago.<br /><br />
+            Date: ${date}<br />
+            Time: ${time}<br /><br />
+            We hope to see you soon!<br /><br /><br /><br />
+            Regards,<br />
+            Diamond Detailers PLT<br />
+            @instagram: diamonddetailersplt<br />
+            @Facebook: https://www.facebook.com/DiamondDetailersPLOT`
+    }
+}
 
 appointmentRouter.post("/new", async (req, res) => {
     return makeAppointment(req, res);

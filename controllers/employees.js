@@ -146,51 +146,6 @@ const deleteEmployee = (req, res) => {
   });
 };
 
-// const getUserDetails = (req, res) => {
-//   const query = employees.findOne({ email: req.query.email });
-//   query.exec(async (err, user) => {
-//     if (err) {
-//       return res.status(500).send({ message: "Error: " + err });
-//     }
-
-//     if (user) {
-//       return res.status(200).send({
-//         fName: user.fName,
-//         lName: user.lName,
-//         gender: user.gender,
-//         type: user.type,
-//         phoneNo: user.phoneNo,
-//         dob: user.dob,
-//         address: user.address,
-//         state: user.state,
-//         country: user.country,
-//         email: user.email,
-//       });
-//     }
-
-//     return res.status(400).send({ message: "User does not exist!" });
-//   });
-// };
-
-// const getNumberOfemployees = (req, res) => {
-//   const query = employees.find({});
-//   query.exec(async (err, user) => {
-//     if (err) {
-//       return res.status(500).send({ message: "Error: " + err });
-//     }
-
-//     if (user) {
-//       num = Object.keys(user).length;
-
-//       return res.status(200).send({
-//         num: num,
-//       });
-//     }
-
-//     return res.status(400).send({ message: "User does not exist!" });
-//   });
-// };
-
 employeesRouter.post("/register", (req, res) => {
   return createEmployee(req, res);
 });
