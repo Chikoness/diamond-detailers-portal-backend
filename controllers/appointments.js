@@ -122,6 +122,8 @@ const makeAppointment = (req, res) => {
                 const saved = await appt.save();
 
                 if (saved) {
+                    await email.sendMail(confirmedApptEmail(id, req.body.email))
+
                     console.log("appointment " + id + " created!");
                     return res.status(200).send({
                         message: "appointment " + id + " created!",
@@ -432,7 +434,7 @@ const editAppointment = (req, res) => {
 
             if (appt) {
                 if (req.body.status == 'Paid') {
-                    await email.sendMail(confirmedAppointmentEmail(req.body.id, req.body.email))
+                    await email.sendMail(confirmedPaymentApptEmail(req.body.id, req.body.email))
                 } else if (req.body.status == 'Cancelled') {
                     await email.sendMail(rejectedAppointmentEmail(req.body.id, req.body.email))
                 }
@@ -509,8 +511,30 @@ const email = nodemailer.createTransport(
         from: 'Diamond Detailers Plt <diamonddetailers8@gmail.com>'
     }
 );
+
+const confirmedApptEmail = (apptID, recipientEmail) => {
+    return {
+        to: `${recipientEmail}`, // comma separated list of recipients
+        subject: `Diamond Detailers: Your Appointment Is Confirmed!`,
+        html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
+            Your appointment booking has been successfully received! Your appointment is now <b>pending</b>!<br /><br />
+            Please make the necessary payments to the details on your app or bank in to either one of the following accounts:<br /><br />
+            <u>CIMB Bank</u><br />
+            Name: Diamond Detailers Plt<br />
+            Account Number: 123456789<br /><br />
+            <u>Maybank</u><br />
+            Name: Diamond Detailers Plt<br />
+            Account Number: 123456789<br /><br />
+            Your Appointment ID is: <b>${apptID}</b><br /><br />
+            Once the payment has been made, a confirmation will be sent to you shortly. Please wait within 1 - 3 hours.<br /><br /><br /><br />
+            Regards,<br />
+            Diamond Detailers PLT<br />
+            @instagram: diamonddetailersplt<br />
+            @Facebook: https://www.facebook.com/DiamondDetailersPLOT`,
+    }
+}
   
-const confirmedAppointmentEmail = (apptID, recipientEmail) => {
+const confirmedPaymentApptEmail = (apptID, recipientEmail) => {
     return {
         to: `${recipientEmail}`, // comma separated list of recipients
         subject: `Diamond Detailers: Your Appointment Is Confirmed!`,
@@ -537,22 +561,6 @@ const rejectedAppointmentEmail = (apptID, recipientEmail) => {
             @instagram: diamonddetailersplt<br />
             @Facebook: https://www.facebook.com/DiamondDetailersPLOT`,
         // html: `Dear Traveer, <br/> As requested, please click <a href=${resetLink}>here</a> to reset the user password for ${recipientEmail}.`
-    }
-}
-
-const carWashReminderEmail = (time, date, recipientEmail) => {
-    return {
-        to: `${recipientEmail}`,
-        subject: `🚗 Reminder For Your Car Wash Service`,
-        html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
-            This is a reminder for your car wash and service appointment you have made with us some time ago.<br /><br />
-            Date: ${date}<br />
-            Time: ${time}<br /><br />
-            We hope to see you soon!<br /><br /><br /><br />
-            Regards,<br />
-            Diamond Detailers PLT<br />
-            @instagram: diamonddetailersplt<br />
-            @Facebook: https://www.facebook.com/DiamondDetailersPLOT`
     }
 }
 
