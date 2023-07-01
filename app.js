@@ -9,8 +9,8 @@ const APPPASSWORD = process.env.APPPASSWORD;
 
 const appointment = require("./models/appointment_schema");
 
-// cron scheduler
-cron.schedule("0 * * * *", function() {
+// cron scheduler for appointment reminder - everyday at midnight will fire up
+cron.schedule("0 0 * * *", function() {
     console.log("------------------")
     console.log("Checking if got upcoming appointments...")
     console.log("------------------")
