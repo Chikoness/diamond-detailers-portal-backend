@@ -10,20 +10,23 @@ const APPPASSWORD = process.env.APPPASSWORD;
 const appointment = require("./models/appointment_schema");
 
 // cron scheduler
-cron.schedule("* 23 * * *", function() {
+cron.schedule("0 * * * *", function() {
     console.log("------------------")
     console.log("Checking if got upcoming appointments...")
     console.log("------------------")
+
+    checkIfGotUpcomingAppointments();
 })
 
 function checkIfGotUpcomingAppointments() {
     const query = appointment.find({ });
     query.exec(async (err, data) => {
         Object.values(data).forEach(async d => {
+            let currentDate = new Date();
             let date = new Date(d.date)
-            const oneday = 60 * 60 * 24 * 1000
+            // const oneday = 60 * 60 * 24 * 1000
 
-            if (date >= oneday) {
+            if (currentDate.getDate() + 1 == d.date.getDate() || currentDate.getDate() == d.date.getDate()) {
                 time = null
 
                 switch (d.timeSlot) {
@@ -52,9 +55,11 @@ function checkIfGotUpcomingAppointments() {
                     "Dec",
                 ]
 
-
                 let dateString = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear()
-                await email.sendMail(carWashReminderEmail(time, date, req.body.email))
+
+                if (d.status == "Pending") {
+                    await email.sendMail(carWashReminderEmail(time, dateString, d.email))
+                }
             }
         })
     })
