@@ -63,12 +63,15 @@ const getCustomerWeatherDistance = (req, res) => {
                 lat: req.body.weatherDistance.lat,
                 long: req.body.weatherDistance.long,
                 weather: req.body.weatherDistance.weather,
+                distance: 0
             },
             new: {
                 lat: req.body.weatherDistance.lat,
                 long: req.body.weatherDistance.long,
-                weather: req.body.weatherDistance.weather
-            }
+                weather: req.body.weatherDistance.weather,
+                distance: 0
+            },
+            distance: 0
         }
 
         let weaDis = await customers.updateOne(
@@ -87,7 +90,7 @@ const getCustomerWeatherDistance = (req, res) => {
           })
         }
       } else {
-        // weather has been created before
+        // has been created before
 
         // weather and distance is the same
         if (data.weatherDistance.new.lat == req.body.weatherDistance.lat && data.weatherDistance.new.long == req.body.weatherDistance.long) {
@@ -107,19 +110,30 @@ const getCustomerWeatherDistance = (req, res) => {
 
         // use distance() function to calculate distance travelled
         let distanceTravelled = distance(latOld, latNew, longOld, longNew);
+        let allTravelDistance = 0;
+
+        if (data.weatherDistance.distance == 0) {
+            // total distance travelled not recorded before
+            allTravelDistance = distanceTravelled
+        } else {
+            // has been recorded before
+            allTravelDistance = data.weatherDistance.distance + distanceTravelled;
+        }
 
         let newWeatherDistance = {
             old: {
                 lat: latOld,
                 long: longOld,
-                weather: data.weatherDistance.weather,
+                weather: data.weatherDistance.new.weather,
+                distance: data.weatherDistance.new.distance
             },
             new: {
                 lat: latNew,
                 long: longNew,
-                weather: req.body.weatherDistance.weather
+                weather: req.body.weatherDistance.weather,
+                distance: distanceTravelled
             },
-            distance: distanceTravelled
+            distance: allTravelDistance
         }
 
         let weaDis = await customers.updateOne(
