@@ -40,17 +40,22 @@ const makeAppointment = (req, res) => {
             //      1800: [ Jon-01012024-3, Jon-01012024-3, Jon-01012024-3 ]
             // }
             //
-            // Note: max 3 slots allowed for each time slots
+            // Note: max 3 appointment IDs allowed for each time slots
             // If time slot is full, reject creating appointment
 
             let timeSlotLocal = data.timeSlots
+            let allBookedSlots = [];
 
-            for (let i = 0; i < req.body.services.length; i++) {
-                if (timeSlotLocal[req.body.timeSlot].length < 3) {
-                    timeSlotLocal[req.body.timeSlot].push(id)
-                } else {
-                    return res.status(403).send({ message: "Slot for " + req.body.timeSlot + " is full. Please pick a different slot." });
+            for (let i = 0; i < timeSlotLocal[req.body.timeSlot].length; i++) {
+                if (!allBookedSlots.includes(timeSlotLocal[req.body.timeSlot][i])) {
+                    allBookedSlots.push(timeSlotLocal[req.body.timeSlot][i]);
                 }
+            }
+
+            if (allBookedSlots.length < 3) {
+                timeSlotLocal[req.body.timeSlot].push(id)
+            } else {
+                return res.status(403).send({ message: "Slot for " + req.body.timeSlot + " is full. Please pick a different slot." });
             }
 
             await slot.updateOne(
@@ -96,7 +101,8 @@ const makeAppointment = (req, res) => {
                     const cust = new customers({
                         name: req.body.name,
                         email: req.body.email,
-                        carType: carTypeArray
+                        carType: carTypeArray,
+                        weatherDistance: {}
                     })
 
                     const save = await cust.save();
@@ -367,14 +373,20 @@ const editAppointment = (req, res) => {
 
                         if (data3) {
                             let timeSlotLocal = data3.timeSlots
+                            let allBookedSlots = []
 
-                            for (let i = 0; i < req.body.services.length; i++) {
-                                if (timeSlotLocal[req.body.timeSlot].length < 3) {
-                                    timeSlotLocal[req.body.timeSlot].push(req.body.id)
-                                } else {
-                                    return res.status(403).send({ message: "Slot for " + req.body.timeSlot + " is full. Please pick a different slot." });
+                            for (let i = 0; i < timeSlotLocal[req.body.timeSlot].length; i++) {
+                                if (!allBookedSlots.includes(timeSlotLocal[req.body.timeSlot][i])) {
+                                    allBookedSlots.push(timeSlotLocal[req.body.timeSlot][i]);
                                 }
                             }
+                
+                            if (allBookedSlots.length < 3) {
+                                timeSlotLocal[req.body.timeSlot].push(id)
+                            } else {
+                                return res.status(403).send({ message: "Slot for " + req.body.timeSlot + " is full. Please pick a different slot." });
+                            }
+            
 
                             await slot.updateOne(
                                 { date: newDateInString },
