@@ -12,6 +12,10 @@ const customersSchema = mongoose.Schema({
     carType: {
         type: Array,
         required: true
+    },
+    weatherDistance: {
+        type: Object,
+        required: false
     }
 });
 
