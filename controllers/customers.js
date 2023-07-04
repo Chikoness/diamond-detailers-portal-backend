@@ -75,7 +75,7 @@ const getCustomerWeatherDistance = (req, res) => {
         }
 
         let weaDis = await customers.updateOne(
-          { id: req.body.id },
+          { email: req.body.email },
           {
             $set: {
               weatherDistance: newWeatherDistance
@@ -137,7 +137,7 @@ const getCustomerWeatherDistance = (req, res) => {
         }
 
         let weaDis = await customers.updateOne(
-            { id: req.body.id },
+            { email: req.body.email },
             {
               $set: {
                 weatherDistance: newWeatherDistance

@@ -10,6 +10,23 @@ const APPPASSWORD = process.env.APPPASSWORD;
 const appointment = require("./models/appointment_schema")
 const customers = require('./models/customer_schema')
 
+const AppRouter = require('express').Router()
+
+const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
+
 // cron scheduler for appointment reminder - everyday at midnight will fire up
 cron.schedule("0 0 * * *", function() {
     console.log("------------------")
@@ -50,20 +67,6 @@ const checkIfGotUpcomingAppointments = () => {
                         time = "6.00p.m. - 9.00p.m."
                         break;
                 }
-                const months = [
-                    "Jan",
-                    "Feb",
-                    "Mar",
-                    "Apr",
-                    "May",
-                    "Jun",
-                    "Jul",
-                    "Aug",
-                    "Sep",
-                    "Oct",
-                    "Nov",
-                    "Dec",
-                ]
 
                 let dateString = date.getDate() + " " + months[date.getMonth()] + " " + date.getFullYear()
 
@@ -75,7 +78,7 @@ const checkIfGotUpcomingAppointments = () => {
     })
 }
 
-const checkDistanceWeather = () => {
+const checkDistanceWeather = (req, res) => {
     const query = customers.findOne({ email: req.body.email })
     query.exec(async (err, data) => {
         Object.values(data).forEach(async d => {
@@ -83,14 +86,14 @@ const checkDistanceWeather = () => {
             if (d.weatherDistance !== undefined) {
                 if (d.weatherDistance.distance > 35) {
                     // when the user has traveled over 35km, fire up the email recommendation algorithm
-                    let difference = abs(d.weatherDistance.old.distance - d.weatherDistance.new.distance)
-                    recommendedDate = checkWeatherDistanceAlgorithm(difference, d.weatherDistance.new.weather)
+                    recommendedDate = checkWeatherDistanceAlgorithm(d.weatherDistance.distance, d.weatherDistance.new.weather)
 
-                    let date = new Date().getDate + recommendedDate; // find recommended date
-
+                    let date = new Date();
+                    let newDate = date.setDate(date.getDate() + recommendedDate)
+                    let dateString = new Date(newDate).getDate() + " " + months[new Date(newDate).getMonth()] + " " + new Date(newDate).getFullYear()
                     await email.sendMail(
                         carWashRecommendedEmail(
-                            date, 
+                            dateString, 
                             d.weatherDistance.distance, 
                             decodeWeatherCode(d.weatherDistance.new.weather), 
                             findRecommendedService(d.weatherDistance.distance, d.weatherDistance.new.weather), 
@@ -116,23 +119,25 @@ const checkDistanceWeather = () => {
                     }
 
                     let weaDis = await customers.updateOne(
-                        { id: req.body.id },
+                        { id: req.body.email },
                         {
                           $set: {
                             weatherDistance: newWeatherDistance
                           }
                         }
-                      )
-              
-                      if (weaDis) {
-                        return res.status(200).send({
-                          message:
+                      ).then(
+                        res.status(200).send({
+                            message:
                             'Recommended next date: ' + date
                         })
-                      }
+                      )
                 }
-
             }
+        })
+
+        return res.status(200).send({
+            message:
+              'No email to send at the moment.'
         })
     })
 }
@@ -156,22 +161,17 @@ const checkWeatherDistanceAlgorithm = (distance, weather) => {
     
     let numberOf5kms = Math.floor(distance / 5);
 
-    switch (weather) {
-        case weather >= 200 && weather < 300:
-            startDays -= (numberOf5kms * thunderstorm)
-            break;
-        case weather >= 300 && weather < 400:
-            startDays -= (numberOf5kms * drizzle)
-            break;
-        case weather >= 500 && weather < 600:
-            startDays -= (numberOf5kms * rain)
-            break;
-        case weather >= 800:
-            startDays -= (numberOf5kms * clearClouds)
-            break;
+    if (weather >= 200 && weather < 300)
+        startDays += (numberOf5kms * thunderstorm)
+    else if (weather >= 300 && weather < 400) {
+        startDays += (numberOf5kms * drizzle)
     }
+    else if (weather >= 500 && weather < 600)
+        startDays += (numberOf5kms * rain)
+    else if (weather >= 800)
+        startDays += (numberOf5kms * clearClouds)
 
-    if (startsDays < 0) { // if calculation reached < 0 days
+    if (startDays < 0) { // if calculation reached < 0 days
         return 1;
     } else {
         return startDays
@@ -179,18 +179,14 @@ const checkWeatherDistanceAlgorithm = (distance, weather) => {
 }
 
 const decodeWeatherCode = (weather) => {
-    switch (weather) {
-        case weather >= 200 && weather < 300:
-            return "thunderstorm"
-        case weather >= 300 && weather < 400:
-            return "drizzle"
-        case weather >= 500 && weather < 600:
-            return "rain"
-        case weather >= 800:
-            return "cloudy/clear"
-    }
-
-    return "unknown"
+    if (weather >= 200 && weather < 300)
+        return "thunderstorm"
+    else if (weather >= 300 && weather < 400)
+        return "drizzle"
+    else if(weather >= 500 && weather < 600)
+        return "rain"
+    else
+        return "cloudy/clear"
 }
 
 const findRecommendedService = (weather, distance) => {
@@ -221,13 +217,18 @@ const findRecommendedService = (weather, distance) => {
             break;
         default:
             arrayOfServices.push("premium wash")
+            break;
     }
 
     let stringArrayTogether = "";
 
+    if (arrayOfServices.length == 1) {
+        stringArrayTogether += arrayOfServices[0]
+    }
+
     for (let i = 0; i < arrayOfServices.length; i++) {
         if (i == arrayOfServices.length - 1) {
-            stringArrayTogether += "and " + arrayOfServices[i]
+            stringArrayTogether += " and " + arrayOfServices[i]
         } else {
             stringArrayTogether += arrayOfServices[i] + ", "
         }
@@ -274,7 +275,7 @@ const carWashRecommendedEmail = (date, distance, weather, services, recipientEma
         subject: `🚗 You Should Wash Your Car Soon!`,
         html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
             It seems like you have been traveling for a long period of time! According to our calculation, you have driven:<br /><br />
-            <b>${distance}</b> hours under <b>${weather}</b>.<br /><br />
+            <b>${distance}km</b> driven under <b>${weather}</b> for the week.<br /><br />
             We recommend for you to come for your car wash by ${date}. You might want to consider getting the ${services}.<br /><br />
             We hope to see you soon!<br /><br /><br /><br />
             Regards,<br />
@@ -288,6 +289,10 @@ const employeesRouter = require('./controllers/employees');
 const appointmentRouter = require('./controllers/appointments')
 const customerRouter = require('./controllers/customers');
 
+AppRouter.post('/test', async (req, res) => {
+    return checkDistanceWeather(req, res)
+})
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -295,5 +300,6 @@ app.use(express.json());
 app.use('/api/employees/', employeesRouter);
 app.use('/api/appointment/', appointmentRouter);
 app.use('/api/customer/', customerRouter);
+app.use('/api/', AppRouter)
 
 module.exports = app;
