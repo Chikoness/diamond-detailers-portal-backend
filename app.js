@@ -91,12 +91,13 @@ const checkDistanceWeather = (req, res) => {
                     let date = new Date();
                     let newDate = date.setDate(date.getDate() + recommendedDate)
                     let dateString = new Date(newDate).getDate() + " " + months[new Date(newDate).getMonth()] + " " + new Date(newDate).getFullYear()
+                    
                     await email.sendMail(
                         carWashRecommendedEmail(
                             dateString, 
-                            d.weatherDistance.distance, 
+                            d.weatherDistance.distance.toFixed(1), 
                             decodeWeatherCode(d.weatherDistance.new.weather), 
-                            findRecommendedService(d.weatherDistance.distance, d.weatherDistance.new.weather), 
+                            findRecommendedService(d.weatherDistance.new.weather, d.weatherDistance.distance), 
                             req.body.email
                         )
                     )
@@ -118,26 +119,21 @@ const checkDistanceWeather = (req, res) => {
                         dateRecommended: date
                     }
 
-                    let weaDis = await customers.updateOne(
+                    await customers.updateOne(
                         { id: req.body.email },
                         {
                           $set: {
                             weatherDistance: newWeatherDistance
                           }
                         }
-                      ).then(
-                        res.status(200).send({
-                            message:
-                            'Recommended next date: ' + date
-                        })
-                      )
+                    )
                 }
             }
         })
 
         return res.status(200).send({
             message:
-              'No email to send at the moment.'
+              'checkWeatherDistance done.'
         })
     })
 }
@@ -193,7 +189,8 @@ const findRecommendedService = (weather, distance) => {
     let arrayOfServices = []
 
     // taking weather into consideration
-    switch (decodeWeatherCode(weather) == "thunderstorm") {
+
+    switch (decodeWeatherCode(weather)) {
         case "thunderstorm":
             arrayOfServices.push("premium polish and protection")
             arrayOfServices.push("watermark removal and protection")
@@ -222,13 +219,13 @@ const findRecommendedService = (weather, distance) => {
 
     let stringArrayTogether = "";
 
-    if (arrayOfServices.length == 1) {
+    if (arrayOfServices.length <= 1) {
         stringArrayTogether += arrayOfServices[0]
     }
 
     for (let i = 0; i < arrayOfServices.length; i++) {
         if (i == arrayOfServices.length - 1) {
-            stringArrayTogether += " and " + arrayOfServices[i]
+            stringArrayTogether += "and " + arrayOfServices[i]
         } else {
             stringArrayTogether += arrayOfServices[i] + ", "
         }
@@ -275,8 +272,8 @@ const carWashRecommendedEmail = (date, distance, weather, services, recipientEma
         subject: `🚗 You Should Wash Your Car Soon!`,
         html: `<h2>Hello from Diamond Detailers PLT,</h2> <br />
             It seems like you have been traveling for a long period of time! According to our calculation, you have driven:<br /><br />
-            <b>${distance}km</b> driven under <b>${weather}</b> for the week.<br /><br />
-            We recommend for you to come for your car wash by ${date}. You might want to consider getting the ${services}.<br /><br />
+            <b>${distance}km</b> driven last week, with the latest weather being <b>${weather}</b>.<br /><br />
+            We recommend for you to come for your car wash by <b>${date}</b>. You might want to consider getting the <b>${services}</b>.<br /><br />
             We hope to see you soon!<br /><br /><br /><br />
             Regards,<br />
             Diamond Detailers PLT<br />
